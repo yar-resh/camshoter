@@ -1,7 +1,15 @@
 import argparse
+import datetime
+import logging
 import os
 import sys
-import logging
+
+import numpy
+from PIL import Image
+
+from PyV4L2Camera.camera import Camera
+from PyV4L2Camera.controls import ControlIDs
+
 
 DEFAULT_DIR = 'images'
 
@@ -40,9 +48,20 @@ def main():
             logger.error(f"no permissions to write into {image_directory}")
             sys.exit(1)
 
-    # TODO: place code for polling cams here
-    # for cam in cams:
-    #     save_image()
+    current_time = datetime.datetime.now()
+    current_time_str = current_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    os.makedirs(os.path.join(image_directory, current_time_str))
+
+    camera = Camera('/dev/video0')
+
+    frame = camera.get_frame()
+    im = Image.frombytes('RGB', (camera.width, camera.height), frame, 'raw',
+                         'RGB')
+    arr = numpy.asarray(im)
+    im = Image.fromarray(numpy.uint8(arr))
+    im.show()
+    camera.close()
 
 
 if '__main__' == __name__:
