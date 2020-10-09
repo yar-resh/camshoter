@@ -46,11 +46,12 @@ def save_frames(image_directory):
             with contextlib.closing(PyV4L2Camera.camera.Camera(video_device)) as camera:
                 frame = camera.get_frame()
         except PyV4L2Camera.exceptions.CameraError:
-            LOG.warning(f'device {video_device} is unavailable')
+            LOG.warning('device {0} is unavailable'.format(video_device))
             continue
 
         image = PIL.Image.frombytes('RGB', (camera.width, camera.height), frame)
-        image.save(f'{os.path.join(current_image_directory, str(device_number))}.{IMAGE_FORMAT}', format=IMAGE_FORMAT)
+        image.save('{0}.{1}'.format(os.path.join(current_image_directory, str(device_number)), IMAGE_FORMAT),
+                   format=IMAGE_FORMAT)
         device_number += 1
 
 
@@ -72,11 +73,11 @@ def main():
         try:
             os.makedirs(image_directory, exist_ok=True)
         except OSError as err:
-            LOG.error(f'error creating directory {image_directory}: {str(err)}')
+            LOG.error('error creating directory {0}: {1}'.format(image_directory, str(err)))
             sys.exit(1)
     else:
         if not os.access(image_directory, os.W_OK):
-            LOG.error(f'no permissions to write into {image_directory}')
+            LOG.error('no permissions to write into {0}'.format(image_directory))
             sys.exit(1)
 
     video_devices = glob.glob('/dev/video*')
