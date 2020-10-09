@@ -95,8 +95,8 @@ def main():
             save_frames(image_directory)
 
         GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(args.pin_number, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(10, GPIO.RISING, callback=callback)
+        GPIO.setup(args.gpio_pin_number, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(args.gpio_pin_number, GPIO.RISING, callback=callback)
 
         threading.Event().wait()
 
