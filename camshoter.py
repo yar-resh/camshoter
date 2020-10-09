@@ -1,15 +1,15 @@
 import argparse
+import contextlib
 import datetime
+import glob
 import logging
 import os
 import sys
+import time
 
-import numpy
-from PIL import Image
-
-from PyV4L2Camera.camera import Camera
-from PyV4L2Camera.controls import ControlIDs
-
+import PIL.Image
+import PyV4L2Camera.camera
+import PyV4L2Camera.exceptions
 
 DEFAULT_DIR = 'images'
 
@@ -48,22 +48,26 @@ def main():
             logger.error(f"no permissions to write into {image_directory}")
             sys.exit(1)
 
-    current_time = datetime.datetime.now()
-    current_time_str = current_time.strftime("%Y-%m-%d %H:%M:%S")
+    current_day = datetime.datetime.now()
+    current_timestamp = int(time.time())
+    current_day_str = current_day.strftime("%Y-%m-%d")
+    current_image_directory = os.path.join(image_directory, current_day_str, str(current_timestamp))
 
-    os.makedirs(os.path.join(image_directory, current_time_str))
+    os.makedirs(current_image_directory, exist_ok=True)
 
-    camera = Camera('/dev/video0')
+    video_devices = glob.glob('/dev/video*')
+    device_number = 1
+    for video_device in video_devices:
+        try:
+            with contextlib.closing(PyV4L2Camera.camera.Camera(video_device)) as camera:
+                frame = camera.get_frame()
+        except PyV4L2Camera.exceptions.CameraError:
+            continue
 
-    frame = camera.get_frame()
-    im = Image.frombytes('RGB', (camera.width, camera.height), frame, 'raw',
-                         'RGB')
-    arr = numpy.asarray(im)
-    im = Image.fromarray(numpy.uint8(arr))
-    im.show()
-    camera.close()
+        image = PIL.Image.frombytes('RGB', (camera.width, camera.height), frame)
+        image.save(f'{os.path.join(current_image_directory, str(device_number))}.jpg', format='JPEG')
+        device_number += 1
 
 
 if '__main__' == __name__:
     main()
-
