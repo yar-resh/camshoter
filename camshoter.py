@@ -13,7 +13,7 @@ import PyV4L2Camera.camera
 import PyV4L2Camera.exceptions
 
 DEFAULT_DIR = 'images'
-DEFAULT_GPIO_PIN_NUMBER = 3
+DEFAULT_GPIO_PIN_NUMBER = 10
 IMAGE_FORMAT = 'jpeg'
 
 LOG = logging.getLogger("camshoter")
