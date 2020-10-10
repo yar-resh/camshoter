@@ -14,6 +14,7 @@ import PyV4L2Camera.exceptions
 
 DEFAULT_DIR = 'images'
 DEFAULT_GPIO_PIN_NUMBER = 10
+DEFAULT_BOUNCE_TIME=300
 IMAGE_FORMAT = 'jpeg'
 
 LOG = logging.getLogger("camshoter")
@@ -96,9 +97,12 @@ def main():
 
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(args.gpio_pin_number, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(args.gpio_pin_number, GPIO.RISING, callback=callback)
+        GPIO.add_event_detect(args.gpio_pin_number, GPIO.RISING, bouncetime=DEFAULT_BOUNCE_TIME, callback=callback)
 
-        threading.Event().wait()
+        try:
+            threading.Event().wait()
+        except KeyboardInterrupt:
+            LOG.info('closing application')
 
 
 if '__main__' == __name__:
