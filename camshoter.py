@@ -102,6 +102,7 @@ def main():
         try:
             threading.Event().wait()
         except KeyboardInterrupt:
+            GPIO.cleanup()
             LOG.info('closing application')
 
 
