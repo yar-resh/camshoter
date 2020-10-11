@@ -23,7 +23,8 @@ LOG = logging.getLogger("camshoter")
 def get_full_path(path):
     """Returns the full path to directory or file.
 
-    If ``path`` is absolute - it returns as is. If ``path is relative`` - it joins to absolute path of running script.
+    If ``path`` is absolute - it returns as is.
+    If ``path`` is relative - it joins to absolute path of directory of running script.
     """
     if os.path.isabs(path):
         return path
@@ -33,6 +34,11 @@ def get_full_path(path):
 
 
 def save_frames(image_directory):
+    """Saves frames, captured from available video devices, to specified directory.
+
+    Directory with name of current date will be created additionally inside ``image_directory`` (if not exists yet).
+    Frames will be saved inside directory with name of current UNIX timestamp located in directory mentioned above.
+    """
     current_day = datetime.datetime.now()
     current_timestamp = int(time.time())
     current_day_str = current_day.strftime("%Y-%m-%d")
