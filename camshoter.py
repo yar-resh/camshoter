@@ -2,7 +2,6 @@ import argparse
 import contextlib
 import datetime
 import glob
-import logging
 import os
 import sys
 import threading
@@ -17,8 +16,6 @@ DEFAULT_GPIO_PIN_NUMBER = 10
 DEFAULT_MIN_HANDLE_INTERVAL = 3  # in seconds
 DEFAULT_BOUNCE_TIME = 300  # in milliseconds
 IMAGE_FORMAT = 'jpeg'
-
-LOG = logging.getLogger("camshoter")
 
 
 def get_full_path(path):
@@ -54,7 +51,7 @@ def save_frames(image_directory):
             with contextlib.closing(PyV4L2Camera.camera.Camera(video_device)) as camera:
                 frame = camera.get_frame()
         except PyV4L2Camera.exceptions.CameraError:
-            LOG.warning('device {0} is unavailable'.format(video_device))
+            print('device {0} is unavailable'.format(video_device))
             continue
 
         image = PIL.Image.frombytes('RGB', (camera.width, camera.height), frame)
@@ -84,16 +81,16 @@ def main():
         try:
             os.makedirs(image_directory, exist_ok=True)
         except OSError as err:
-            LOG.error('error creating directory {0}: {1}'.format(image_directory, str(err)))
+            print('error creating directory {0}: {1}'.format(image_directory, str(err)))
             sys.exit(1)
     else:
         if not os.access(image_directory, os.W_OK):
-            LOG.error('no permissions to write into {0}'.format(image_directory))
+            print('no permissions to write into {0}'.format(image_directory))
             sys.exit(1)
 
     video_devices = glob.glob('/dev/video*')
     if not video_devices:
-        LOG.warning('there is no video devices in system')
+        print('there is no video devices in system')
         sys.exit(0)
 
     if args.instant:
@@ -121,7 +118,7 @@ def main():
             threading.Event().wait()
         except KeyboardInterrupt:
             GPIO.cleanup()
-            LOG.info('closing application')
+            print('closing application')
 
 
 if '__main__' == __name__:
