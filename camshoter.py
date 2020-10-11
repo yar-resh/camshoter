@@ -14,7 +14,8 @@ import PyV4L2Camera.exceptions
 
 DEFAULT_DIR = 'images'
 DEFAULT_GPIO_PIN_NUMBER = 10
-DEFAULT_BOUNCE_TIME=300
+DEFAULT_MIN_HANDLE_INTERVAL = 3  # in seconds
+DEFAULT_BOUNCE_TIME = 300  # in milliseconds
 IMAGE_FORMAT = 'jpeg'
 
 LOG = logging.getLogger("camshoter")
@@ -73,6 +74,9 @@ def main():
                              'script will exit immediately after saving frames')
     parser.add_argument('-p', '--pin_number', action='store', default=DEFAULT_GPIO_PIN_NUMBER, dest='gpio_pin_number',
                         type=int, help='number of GPIO pin button connected to')
+    parser.add_argument('-m', '--min_handle_interval', action='store', default=DEFAULT_MIN_HANDLE_INTERVAL,
+                        dest='min_handle_interval', type=int,
+                        help='next frame saving allowed not sooner than previous saving time plus this interval')
     args = parser.parse_args()
 
     image_directory = get_full_path(args.image_directory)
@@ -98,12 +102,20 @@ def main():
         # RPi.GPIO can be imported only on Raspberry Pi
         import RPi.GPIO as GPIO
 
+        prev_timestamp = 0
+
         def callback(channel):
+            nonlocal prev_timestamp
+            current_timestamp = int(time.time())
+            if (current_timestamp - prev_timestamp) < args.min_handle_interval:
+                return
+
             save_frames(image_directory)
+            prev_timestamp = current_timestamp
 
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(args.gpio_pin_number, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(args.gpio_pin_number, GPIO.RISING, bouncetime=DEFAULT_BOUNCE_TIME, callback=callback)
+        GPIO.add_event_detect(args.gpio_pin_number, GPIO.RISING, callback=callback, bouncetime=DEFAULT_BOUNCE_TIME)
 
         try:
             threading.Event().wait()
