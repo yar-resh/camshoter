@@ -63,9 +63,10 @@ def save_frames(image_directory):
 def main():
     parser = argparse.ArgumentParser(
         description='This script polls web-cameras plugged into Raspberry Pi '
-                    'and saves images to directory (specified or default)')
+                    'and saves captured frames to directory (specified or default)')
     parser.add_argument('-d', '--directory', action='store', default=DEFAULT_DIR, dest='image_directory',
-                        help='path to the directory where images should be located. Can be either absolute or relative')
+                        help='path to the directory where captured frames will be saved as images. '
+                             'Can be either absolute or relative')
     parser.add_argument('-i', '--instant', action='store_true', dest='instant',
                         help='frames from cameras will be captured instantly, without waiting for button press; '
                              'script will exit immediately after saving frames')
