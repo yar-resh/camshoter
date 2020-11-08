@@ -4,17 +4,13 @@ import datetime
 import glob
 import os
 import sys
-import threading
-import time
 
 import PIL.Image
 import PyV4L2Camera.camera
 import PyV4L2Camera.exceptions
 
 DEFAULT_DIR = 'images'
-DEFAULT_GPIO_PIN_NUMBER = 10
-DEFAULT_MIN_HANDLE_INTERVAL = 3  # in seconds
-DEFAULT_BOUNCE_TIME = 300  # in milliseconds
+
 IMAGE_FORMAT = 'jpeg'
 BLACKLIST_NAME_PARTS = ['bcm2835']
 
@@ -86,14 +82,6 @@ def main():
     parser.add_argument('-d', '--directory', action='store', default=DEFAULT_DIR, dest='image_directory',
                         help='path to the directory where captured frames will be saved as images. '
                              'Can be either absolute or relative')
-    parser.add_argument('-i', '--instant', action='store_true', dest='instant',
-                        help='frames from cameras will be captured instantly, without waiting for button press; '
-                             'script will exit immediately after saving frames')
-    parser.add_argument('-p', '--pin_number', action='store', default=DEFAULT_GPIO_PIN_NUMBER, dest='gpio_pin_number',
-                        type=int, help='number of GPIO pin button connected to')
-    parser.add_argument('-m', '--min_handle_interval', action='store', default=DEFAULT_MIN_HANDLE_INTERVAL,
-                        dest='min_handle_interval', type=int,
-                        help='next frame saving allowed not sooner than previous saving time plus this interval')
     args = parser.parse_args()
 
     image_directory = get_full_path(args.image_directory)
@@ -113,32 +101,7 @@ def main():
         print('there is no video devices in system')
         sys.exit(0)
 
-    if args.instant:
-        save_frames(image_directory)
-    else:
-        # RPi.GPIO can be imported only on Raspberry Pi
-        import RPi.GPIO as GPIO
-
-        prev_timestamp = 0
-
-        def callback(channel):
-            nonlocal prev_timestamp
-            current_timestamp = int(time.time())
-            if (current_timestamp - prev_timestamp) < args.min_handle_interval:
-                return
-
-            save_frames(image_directory)
-            prev_timestamp = current_timestamp
-
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(args.gpio_pin_number, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(args.gpio_pin_number, GPIO.RISING, callback=callback, bouncetime=DEFAULT_BOUNCE_TIME)
-
-        try:
-            threading.Event().wait()
-        except KeyboardInterrupt:
-            GPIO.cleanup()
-            print('closing application')
+    save_frames(image_directory)
 
 
 if '__main__' == __name__:
