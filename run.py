@@ -46,3 +46,8 @@ def main():
     except KeyboardInterrupt:
         GPIO.cleanup()
         print('closing application')
+
+
+
+if '__main__' == __name__:
+    main()
