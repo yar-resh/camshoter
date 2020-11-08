@@ -14,8 +14,7 @@ DEFAULT_BOUNCE_TIME = 300  # in milliseconds
 
 def main():
     parser = argparse.ArgumentParser(
-        description='This script polls web-cameras plugged into Raspberry Pi '
-                    'and saves captured frames to directory (specified or default)')
+        description='This script polls button and calls camshoter when button is pressed')
     parser.add_argument('-d', '--directory', action='store', default=DEFAULT_DIR, dest='image_directory',
                         help='path to the directory where captured frames will be saved as images. '
                              'Can be either absolute or relative')
@@ -34,7 +33,7 @@ def main():
         if (current_timestamp - prev_timestamp) < args.min_handle_interval:
             return
 
-        result = subprocess.run(['python3', 'camshoter.py', '-d', args.image_directory])
+        subprocess.run(['python3', 'camshoter.py', '-d', args.image_directory])
         prev_timestamp = current_timestamp
 
     GPIO.setmode(GPIO.BOARD)
@@ -46,7 +45,6 @@ def main():
     except KeyboardInterrupt:
         GPIO.cleanup()
         print('closing application')
-
 
 
 if '__main__' == __name__:
