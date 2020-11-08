@@ -34,7 +34,7 @@ def main():
         if (current_timestamp - prev_timestamp) < args.min_handle_interval:
             return
 
-        result = subprocess.run('python3 camshoter.py -d {0}'.format(args.image_directory))
+        result = subprocess.run(['python3', 'camshoter.py', '-d', args.image_directory])
         prev_timestamp = current_timestamp
 
     GPIO.setmode(GPIO.BOARD)
