@@ -53,9 +53,9 @@ def save_frames(image_directory):
     Frames will be saved inside directory with name of current UNIX timestamp located in directory mentioned above.
     """
     current_day = datetime.datetime.now()
-    current_timestamp = int(time.time())
+    current_timestamp = current_day.strftime("%H:%M:%S")
     current_day_str = current_day.strftime("%Y-%m-%d")
-    current_image_directory = os.path.join(image_directory, current_day_str, str(current_timestamp))
+    current_image_directory = os.path.join(image_directory, current_day_str, current_timestamp)
 
     os.makedirs(current_image_directory, exist_ok=True)
 
