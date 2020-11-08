@@ -3,15 +3,13 @@ import time
 import threading
 import subprocess
 
+# RPi.GPIO can be imported only on Raspberry Pi
+import RPi.GPIO as GPIO
+
 DEFAULT_DIR = 'images'
 DEFAULT_GPIO_PIN_NUMBER = 10
 DEFAULT_MIN_HANDLE_INTERVAL = 3  # in seconds
 DEFAULT_BOUNCE_TIME = 300  # in milliseconds
-
-# RPi.GPIO can be imported only on Raspberry Pi
-import RPi.GPIO as GPIO
-
-prev_timestamp = 0
 
 
 def main():
@@ -27,6 +25,8 @@ def main():
                         dest='min_handle_interval', type=int,
                         help='next frame saving allowed not sooner than previous saving time plus this interval')
     args = parser.parse_args()
+
+    prev_timestamp = 0
 
     def callback(channel):
         nonlocal prev_timestamp
