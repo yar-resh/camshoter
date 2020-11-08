@@ -1,0 +1,10 @@
+[Unit]
+Description=Camshoter is intended to poll USB cameras and saves frames
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python3 /home/pi/Documents/camshoter/run.py -d /home/pi/Documents/images
+
+[Install]
+WantedBy=multi-user.target
