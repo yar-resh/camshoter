@@ -1,4 +1,5 @@
 import argparse
+import os
 import time
 import threading
 import subprocess
@@ -33,7 +34,11 @@ def main():
         if (current_timestamp - prev_timestamp) < args.min_handle_interval:
             return
 
-        subprocess.run(['python3', 'camshoter.py', '-d', args.image_directory])
+        real_path = os.path.realpath(__file__)
+        dir_name = os.path.dirname(real_path)
+        script_path = os.path.join(dir_name, "camshoter.py")
+
+        subprocess.run(['python3', script_path, '-d', args.image_directory])
         prev_timestamp = current_timestamp
 
     GPIO.setmode(GPIO.BOARD)
