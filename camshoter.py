@@ -16,6 +16,7 @@ DEFAULT_GPIO_PIN_NUMBER = 10
 DEFAULT_MIN_HANDLE_INTERVAL = 3  # in seconds
 DEFAULT_BOUNCE_TIME = 300  # in milliseconds
 IMAGE_FORMAT = 'jpeg'
+BLACKLIST_NAME_PARTS = ['bcm2835']
 
 
 def get_full_path(path):
@@ -29,6 +30,20 @@ def get_full_path(path):
 
     script_directory = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(script_directory, path)
+
+
+def get_device_name(device_number):
+    """Return the name of video device pointed by its number"""
+    with open('/sys/class/video4linux/video{0}/name'.format(device_number), 'r') as video_device_file:
+        return video_device_file.readline()
+
+
+def is_blacklisted(device_name):
+    """Returns true if device name contains blacklisted name parts, false otherwise"""
+    for name in BLACKLIST_NAME_PARTS:
+        if name in device_name:
+            return True
+    return False
 
 
 def save_frames(image_directory):
@@ -47,6 +62,10 @@ def save_frames(image_directory):
     video_devices = glob.glob('/dev/video*')
     device_number = 1
     for video_device in video_devices:
+        device_name = get_device_name(video_device.replace('/dev/video', ''))
+        if is_blacklisted(device_name):
+            continue
+
         try:
             with contextlib.closing(PyV4L2Camera.camera.Camera(video_device)) as camera:
                 frame = camera.get_frame()
